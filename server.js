@@ -81,12 +81,14 @@ code(1);
 
 function soc(){
 
-     if(!socdone){
+
             io.sockets.on('connection', function (socket) {
                 var p=0;
-                socket.on('createEvent',function(event){
-
-                    geocoder.geocode("kanstrasse, Berlin",function ( err, data ){
+                socket.on('createEvent',function(where){
+                    console.log("ciao");
+                    if(where.indexOf(",")!=-1)
+                        where=where+", karlskrona";
+                    geocoder.geocode(where,function ( err, data ){
                         var obj= JSON.parse(JSON.stringify(data));
 
                         if(obj.status=="OVER_QUERY_LIMIT"){
@@ -98,30 +100,27 @@ function soc(){
                             var lat1=obj.results[0].geometry.location.lat;
                             var lon1=obj.results[0].geometry.location.lng;
 
-                            cord[6]=[lat1,lon1];
+                            cord[p]=[lat1,lon1];
 
-                            console.log(cord[6]);
+                            console.log(cord[p]);
 
 
                         }
 
 
+                        socket.emit('cord', cord[p]);
+
+
+
+
                     });
                 });
 
-                while(p<cord.length){
 
-                    socket.emit('cord', cord[p]);
-
-                    p++;
-                }
-                socdone=true;
 
             });
-     }
-    else{
-         io.sockets.emit('cord',  cord[cord.length-1]);
-     }
+
+
 
 }
 function find(x){
@@ -148,12 +147,6 @@ function code(x){
 
 
 
-                        cord[0]=[ 52.51580 ,13.32024];
-                        cord[1]=[ 52.54337 ,13.42392];
-                        cord[2]=[ 52.46605 ,13.42461];
-                        cord[3]=[ 52.50285 ,13.40950];
-                        cord[4]=[ 52.55047 ,13.34976];
-                        cord[5]=[ 52.811397 ,13.669480];
 
 
         soc();

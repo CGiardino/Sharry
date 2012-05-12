@@ -2,7 +2,7 @@ script
 
       var lat="";
       var lon="";
-      var indexcord=0;
+      var indexcord=1;
       var neighborhoods=[];
 
       var socket = io.connect();
@@ -12,17 +12,11 @@ script
 
 
       });
-      function cEvent(){
-                                  console.log("dsognijdsg");
-                                  socket.emit('createEvent',"ciaosdoigsg");
+      function cEvent(where){
+                                  console.log(where);
+                                  socket.emit('createEvent',where);
       }
-      cord=[];
-       cord[0]=[ 52.51236,13.31998];
-       cord[1]=[ 52.51430,13.30914];
-       cord[2]=[ 52.51563,13.29921];
-       cord[3]=[ 52.51102 ,13.29282];
-       cord[4]=[ 52.811397 ,13.269480];
-       cord[5]=[ 52.811397 ,13.669480];
+
       var map;
       var contentString;
 
@@ -31,9 +25,9 @@ script
 
       function initializeMap(){
           var myOptions = {
-              zoom: 12,
-              center:  new google.maps.LatLng(52.514549,13.397920),
-              scrollwheel: false,
+              zoom: 14,
+              center:  new google.maps.LatLng(56.171224 ,15.586900),
+
                   navigationControl: false,
                   mapTypeControl: false,
                   scaleControl: false,
@@ -44,37 +38,7 @@ script
           map =  new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
       }
-      function initializeMap1(){
-                  var myOptions = {
-                      zoom: 15,
-                      center:  new google.maps.LatLng(52.514549,13.297920),
-                      scrollwheel: false,
-                          navigationControl: false,
-                          mapTypeControl: false,
-                          scaleControl: false,
-                          draggable: false,
-                          streetViewControl: false,
-                      mapTypeId: google.maps.MapTypeId.ROADMAP
-                  }
-                  map =  new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
-              }
-
-      function initializeMap2(){
-                  var myOptions = {
-                      zoom: 15,
-                      center:  new google.maps.LatLng(52.48478 ,13.33165),
-                      scrollwheel: false,
-                          navigationControl: false,
-                          mapTypeControl: false,
-                          scaleControl: false,
-                          draggable: false,
-                          streetViewControl: false,
-                      mapTypeId: google.maps.MapTypeId.ROADMAP
-                  }
-                  map =  new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-
-              }
       function initialize (i,cord){
 
           neighborhoods[i] = cord ;
@@ -92,58 +56,46 @@ script
           var icon;
 
 
-              icon="img/pointer-0"+i+".png";
+              icon="img/p0.png";
 
+          var marker=new google.maps.Marker({
 
-          markers.push(new google.maps.Marker({
-              position: new google.maps.LatLng(neighborhoods[i][0],neighborhoods[i][1]),
-              map: map,
-              draggable: false,
+                        position: new google.maps.LatLng(neighborhoods[i][0],neighborhoods[i][1]),
+                        map: map,
+                        draggable: false,
 
-              animation: google.maps.Animation.DROP,
-              icon: icon
-          }));
+                        animation: google.maps.Animation.DROP,
+                        icon: icon
+                    });
+          markers.push(marker);
+            var myOptions = {
+                     content: "CIAO"
+                    ,disableAutoPan: false
+                    ,maxWidth: 0
+                    ,pixelOffset: new google.maps.Size(-30, -70)
+                    ,zIndex: null
+                    ,boxStyle: {
+                      background: "url('img/casella-singola.png') no-repeat"
+                      ,opacity: 0.9
+                      ,width: "133px"
+                      ,height: "60px"
+                      ,padding:"7px 10px"
+                     }
+                    ,closeBoxMargin: "-4px 12px 12px 12px"
+                    ,closeBoxURL: "http://www.google.com/intl/en_us/mapfiles/close.gif"
+                    ,infoBoxClearance: new google.maps.Size(1, 1)
+                    ,isHidden: false
+                    ,pane: "floatPane"
+                    ,enableEventPropagation: false
+                };
+          var infowindow = new InfoBox(myOptions);
+          setTimeout(function(){  infowindow.open(map, marker);},1000);
+          google.maps.event.addListener(marker, 'click', function() {
+            infowindow.open(map, marker);
 
+          });
       }
-      function addMarker2(i) {
-                  var icon;
 
-
-                      icon="img/p"+i+".png";
-
-
-                  markers.push(new google.maps.Marker({
-                      position: new google.maps.LatLng(cord[i][0],cord[i][1]),
-                      map: map,
-                      draggable: false,
-
-                      animation: google.maps.Animation.DROP,
-                      icon: icon
-                  }));
-
-              }
-              function addMarker3() {
-                                  var icon;
-
-
-                                      icon="img/startup-weekend-event.png";
-
-
-                                  var marker=new google.maps.Marker({
-                                                                          position: new google.maps.LatLng(52.48478,13.33165),
-                                                                          map: map,
-                                                                          draggable: false,
-
-                                                                          animation: google.maps.Animation.DROP,
-                                                                          icon: icon
-                                                                      });
-
-                                  google.maps.event.addListener(marker, 'click', function() {
-                                    infowindow.open(map,marker);
-                                  });
-                                 markers.push(marker);
-
-                              }
       function drop(i) {
 
               setTimeout(function() {
@@ -151,27 +103,17 @@ script
                   addMarker(i);
               }, i * 20+500);
 
+
       }
-      function drop2(i) {
 
-                      setTimeout(function() {
-
-                          addMarker2(i);
-                      }, i * 20+500);
-
-              }
-      function drop3(i) {
-
-                              setTimeout(function() {
-
-                                  addMarker3();
-                              }, i * 20+500);
-
-                      }
 
       $().ready(function(){
 
           $('#leftside').css('height',$(window).height());
+          $(window).scroll(function(){
+                console.log("CIAO!");
+                 $(document).scrollTop(0);
+          });
           $('#wrap').bind("mouseenter",function() {
 
                                   done=false;
@@ -256,7 +198,7 @@ script
 
       function skillcheck(x){
                                      for(var i=1;i<=$(x).attr('id');i++){
-                                        if(  $('#'+i).css("background-image")!="url('/img/casella-skills-fill.png')")
+
                                             $('#'+i).css("background-image","url('/img/casella-skills-fill.png')");
                                      }
                                      while(i<=5){
@@ -265,7 +207,9 @@ script
                                      }
                                  }
 
-body(onload="initialize()")
+
+
+body(onload="initialize(0,[56.171224 ,15.586900]),entra()")
 
 
       #map_canvas
@@ -278,7 +222,7 @@ body(onload="initialize()")
                   img#search(src="img/spotlight.png",onclick="entra2()")
 
               #sharry(class="ent")
-                  input.casella(class="ent",type="textbox", value="Title", onfocus="$(this).val('')", onblur="if($(this).val()==''    )$(this).val('Title');")
+                  input.casella#title(tabindex=1,class="ent",type="textbox", value="Title", onfocus="$(this).val('')", onblur="if($(this).val()==''    )$(this).val('Title');")
 
 
 
@@ -289,19 +233,20 @@ body(onload="initialize()")
                       img#4(class="entt",onclick=("skillcheck(this)"))
                       img#5(class="entt",onclick=("skillcheck(this)"))
 
-                  input.casella(class="ent",type="textbox", value="When", onfocus="$(this).val('')", onblur="if($(this).val()==''    )$(this).val('When');")
-                  input.casella(class="ent",type="textbox", value="Where", onfocus="$(this).val('')", onblur="if($(this).val()==''    )$(this).val('Where');")
-                  img#sharryBtn(class="ent", onclick="initializeMap2();drop3();cEvent() ")
+                  input.casella#when(tabindex=2,class="ent",type="textbox", value="When", onfocus="$(this).val('')", onblur="if($(this).val()==''    )$(this).val('When');")
+                  input.casella#where(tabindex=3,class="ent",type="textbox", value="Where", onfocus="$(this).val('')", onblur="if($(this).val()==''    )$(this).val('Where');", onkeypress="if(event.charCode==13)cEvent($('#where').val())")
+                  img#sharryBtn(tabindex=4,class="ent", onclick="cEvent($('#where').val())")
 
 
 
 
-      #wrapR(style="position:absolute;right:290px;")
-          #leftside(style="border:none;margin-top:50px; position:absolute ;background-color:transparent;  opacity:0.9;z-index:50;width:270px; height:750px")
+      #wrapR
+          #rightside
               img(src="img/button-now.png")
               img(src="img/tool-box.png", style="border:none;float:right; margin-top:20px")
 
 
+      #footer
 
 
 
