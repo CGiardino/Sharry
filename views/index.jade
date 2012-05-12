@@ -1,5 +1,4 @@
 script
-
       var lat="";
       var lon="";
       var indexcord=1;
@@ -108,8 +107,9 @@ script
 
 
       $().ready(function(){
-
+          initialize(0,[56.171224 ,15.586900]);entra();
           $('#leftside').css('height',$(window).height());
+
           $(window).scroll(function(){
                 console.log("CIAO!");
                  $(document).scrollTop(0);
@@ -209,7 +209,7 @@ script
 
 
 
-body(onload="initialize(0,[56.171224 ,15.586900]),entra()")
+body
 
 
       #map_canvas
