@@ -1,4 +1,307 @@
-!!! 5
-html(lang="en")
-  head
-  body(onload="initialize()")
+script
+
+      var lat="";
+      var lon="";
+      var indexcord=0;
+      var neighborhoods=[];
+
+      var socket = io.connect();
+      socket.on('cord', function (cord) {
+          initialize(indexcord,cord);
+          indexcord++;
+
+
+      });
+      function cEvent(){
+                                  console.log("dsognijdsg");
+                                  socket.emit('createEvent',"ciaosdoigsg");
+      }
+      cord=[];
+       cord[0]=[ 52.51236,13.31998];
+       cord[1]=[ 52.51430,13.30914];
+       cord[2]=[ 52.51563,13.29921];
+       cord[3]=[ 52.51102 ,13.29282];
+       cord[4]=[ 52.811397 ,13.269480];
+       cord[5]=[ 52.811397 ,13.669480];
+      var map;
+      var contentString;
+
+      var markers = [];
+      var iterator = 0;
+
+      function initializeMap(){
+          var myOptions = {
+              zoom: 12,
+              center:  new google.maps.LatLng(52.514549,13.397920),
+              scrollwheel: false,
+                  navigationControl: false,
+                  mapTypeControl: false,
+                  scaleControl: false,
+
+                  streetViewControl: false,
+              mapTypeId: google.maps.MapTypeId.ROADMAP
+          }
+          map =  new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+      }
+      function initializeMap1(){
+                  var myOptions = {
+                      zoom: 15,
+                      center:  new google.maps.LatLng(52.514549,13.297920),
+                      scrollwheel: false,
+                          navigationControl: false,
+                          mapTypeControl: false,
+                          scaleControl: false,
+                          draggable: false,
+                          streetViewControl: false,
+                      mapTypeId: google.maps.MapTypeId.ROADMAP
+                  }
+                  map =  new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+              }
+
+      function initializeMap2(){
+                  var myOptions = {
+                      zoom: 15,
+                      center:  new google.maps.LatLng(52.48478 ,13.33165),
+                      scrollwheel: false,
+                          navigationControl: false,
+                          mapTypeControl: false,
+                          scaleControl: false,
+                          draggable: false,
+                          streetViewControl: false,
+                      mapTypeId: google.maps.MapTypeId.ROADMAP
+                  }
+                  map =  new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+              }
+      function initialize (i,cord){
+
+          neighborhoods[i] = cord ;
+          if(i==0){
+
+              initializeMap();
+              iterator = 0;
+          }
+          else{
+            drop(i);
+          }
+      }
+
+      function addMarker(i) {
+          var icon;
+
+
+              icon="img/pointer-0"+i+".png";
+
+
+          markers.push(new google.maps.Marker({
+              position: new google.maps.LatLng(neighborhoods[i][0],neighborhoods[i][1]),
+              map: map,
+              draggable: false,
+
+              animation: google.maps.Animation.DROP,
+              icon: icon
+          }));
+
+      }
+      function addMarker2(i) {
+                  var icon;
+
+
+                      icon="img/p"+i+".png";
+
+
+                  markers.push(new google.maps.Marker({
+                      position: new google.maps.LatLng(cord[i][0],cord[i][1]),
+                      map: map,
+                      draggable: false,
+
+                      animation: google.maps.Animation.DROP,
+                      icon: icon
+                  }));
+
+              }
+              function addMarker3() {
+                                  var icon;
+
+
+                                      icon="img/startup-weekend-event.png";
+
+
+                                  var marker=new google.maps.Marker({
+                                                                          position: new google.maps.LatLng(52.48478,13.33165),
+                                                                          map: map,
+                                                                          draggable: false,
+
+                                                                          animation: google.maps.Animation.DROP,
+                                                                          icon: icon
+                                                                      });
+
+                                  google.maps.event.addListener(marker, 'click', function() {
+                                    infowindow.open(map,marker);
+                                  });
+                                 markers.push(marker);
+
+                              }
+      function drop(i) {
+
+              setTimeout(function() {
+
+                  addMarker(i);
+              }, i * 20+500);
+
+      }
+      function drop2(i) {
+
+                      setTimeout(function() {
+
+                          addMarker2(i);
+                      }, i * 20+500);
+
+              }
+      function drop3(i) {
+
+                              setTimeout(function() {
+
+                                  addMarker3();
+                              }, i * 20+500);
+
+                      }
+
+      $().ready(function(){
+
+          $('#leftside').css('height',$(window).height());
+          $('#wrap').bind("mouseenter",function() {
+
+                                  done=false;
+                                $('#container').stop().animate({
+
+                                  opacity: '1',
+
+                                }, 1000, function() {
+                                  // Animation complete.
+                                });
+
+                              }).bind("mouseleave",function(){
+
+                                       $('#container').stop().animate({
+
+
+
+                                           opacity: '1',
+
+                                         }, 1000, function() {
+
+                                         });
+
+                              });
+           $('#nUtenti').bind("mouseenter",function() {
+
+                                               done=false;
+                                             $('#nUtenti').stop().animate({
+
+                                               opacity: '1',
+
+                                             }, 1000, function() {
+                                               // Animation complete.
+                                             });
+
+                                           }).bind("mouseleave",function(){
+
+                                                    $('#nUtenti').stop().animate({
+
+
+
+                                                        opacity: '1',
+
+                                                      }, 1000, function() {
+
+                                                      });
+
+                                           });
+
+
+
+      });
+      function entra(){
+                      $('.ent').css("display","block");
+
+                      $('.ent').stop().animate({
+
+                      opacity:1,
+                      left:0
+                      }, 500, function() {
+                      // Animation complete.
+                      });
+      }
+      function entra2(){
+                          $('.ent').css("display","none");
+                          $('img#ent2').css("display","block");
+
+                              $('img#ent2').stop().animate({
+
+                              opacity:1.5
+
+                              }, 1300, function() {
+                              // Animation complete.
+                              });
+              }
+
+
+      function drop1(){
+                                       for(var i=0;i<6;i++)
+                                          drop2(i);
+      }
+
+      function skillcheck(x){
+                                     for(var i=1;i<=$(x).attr('id');i++){
+                                        if(  $('#'+i).css("background-image")!="url('/img/casella-skills-fill.png')")
+                                            $('#'+i).css("background-image","url('/img/casella-skills-fill.png')");
+                                     }
+                                     while(i<=5){
+                                           $('#'+i).css("background-image","url('/img/casella-skills.png')");
+                                           i++;
+                                     }
+                                 }
+
+body(onload="initialize()")
+
+
+      #map_canvas
+      #wrapL
+          #leftside
+              #header
+                  img#title(src="img/header.png")
+
+                  img#create(src="img/sharry-it-cross.png", onclick="entra();")
+                  img#search(src="img/spotlight.png",onclick="entra2()")
+
+              #sharry(class="ent")
+                  input.casella(class="ent",type="textbox", value="Title", onfocus="$(this).val('')", onblur="if($(this).val()==''    )$(this).val('Title');")
+
+
+
+                  #skills.casella(class="ent")
+                      img#1(class="entt",onclick=("skillcheck(this)"))
+                      img#2(class="entt",onclick=("skillcheck(this)"))
+                      img#3(class="entt",onclick=("skillcheck(this)"))
+                      img#4(class="entt",onclick=("skillcheck(this)"))
+                      img#5(class="entt",onclick=("skillcheck(this)"))
+
+                  input.casella(class="ent",type="textbox", value="When", onfocus="$(this).val('')", onblur="if($(this).val()==''    )$(this).val('When');")
+                  input.casella(class="ent",type="textbox", value="Where", onfocus="$(this).val('')", onblur="if($(this).val()==''    )$(this).val('Where');")
+                  img#sharryBtn(class="ent", onclick="initializeMap2();drop3();cEvent() ")
+
+
+
+
+      #wrapR(style="position:absolute;right:290px;")
+          #leftside(style="border:none;margin-top:50px; position:absolute ;background-color:transparent;  opacity:0.9;z-index:50;width:270px; height:750px")
+              img(src="img/button-now.png")
+              img(src="img/tool-box.png", style="border:none;float:right; margin-top:20px")
+
+
+
+
+

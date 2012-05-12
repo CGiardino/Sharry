@@ -15,125 +15,22 @@ var geo= new Schema({
     ,type: String
 })
 var interests;
-mongoose.connect('mongodb://localhost/milkplease');
+mongoose.connect('mongodb://localhost/sharry');
 var geoModel = mongoose.model('geos', geo);
+
 
 
 
 
 var dati=[];
 var j=0;
-var MailChimp=require('mailchimp');
-var MailChimpWebhook = MailChimp.MailChimpWebhook;
-
-var MailChimpExportAPI = MailChimp.MailChimpExportAPI;
 
 
 
 
-var apiKey = 'ad35e8926f0c786cc82e302c3134f786-us4';
-var webhook = new MailChimpWebhook(apiKey,{port:8100, secure:false});
-try {
-    var exportApi = new MailChimpExportAPI(apiKey, { version : '1.0', secure: false });
 
-} catch (error) {
-    console.log('Error: ' + error);
-}
 var nUt=0;
-function readList(){
-    nUt=0;
-    j=0;
-    interests=[0,0,0,0,0];
-    geoModel.update({},{count:0},{multi:true},function(err,data){});
-    exportApi.list({ id : '2091439f7f'  }, function (data) {
 
-        if (data.error)
-            console.log('Error: '+data.error+' ('+data.code+')');
-        else{
-            var i=1;
-
-
-            while(data[i]!=null){
-                nUt++;
-                if(data[i][3]!=null)    {
-
-
-
-                         if( data[i][3].indexOf("Poter ricevere la spesa rimanendo a casa.")!=-1)
-                             interests[0]++;
-
-                         if( data[i][3].indexOf("Guadagnare facendo piccole consegne per altri utenti.")!=-1)
-                             interests[1]++;
-
-                         if( data[i][3].indexOf("Voglio offrire il servizio di Milk")!=-1)
-                             interests[2]++;
-
-                         if( data[i][3].indexOf("Pubblicizzare i miei prodotti tramite suggerimenti sponsorizzati.")!=-1)
-                             interests[3]++;
-
-                         if( data[i][3].indexOf("Sono curioso")!=-1)
-                             interests[4]++;
-
-
-                     }
-
-                if(data[i][1]!=null && data[i][1]!=""){
-
-                    dati[j]=data[i][1];
-
-                    j++;
-
-                }
-                i++;
-            }
-            populate(0);
-        }
-
-    });
-    }
-readList();
-function populate(j){
-
-            if(j<dati.length)
-                geoModel.findOne({'cap':dati[j]},function (err,doc){
-
-                    if(doc==null){
-
-                        var geoInstance= new geoModel();
-                        geoInstance.cap=dati[j];
-
-
-                        geoInstance.save(function(err,docs){});
-
-
-
-                    }
-                    else{
-
-
-
-                    }
-                    populate(++j);
-
-                });
-            else
-
-                    gohead();
-}
-
-webhook.on('error', function (message) {
-    console.log('Error: '+message);
-});
-
-webhook.on('subscribe', function (data) {
-
-
-    readList();
-    console.log("ecco"+data);
-});
-webhook.on('unsubscribe', function (data, meta) {
-    readList();
-});
 
 /*reader.addListener('data', function(data) {
     var i=0;
@@ -179,10 +76,7 @@ var z=0;
 var ci=0;
 var cord=[];
 var socdone=false;
-function gohead(){
-    z++;
-    find(z);
-}
+code(1);
 
 
 function soc(){
@@ -190,8 +84,31 @@ function soc(){
      if(!socdone){
             io.sockets.on('connection', function (socket) {
                 var p=0;
+                socket.on('createEvent',function(event){
 
-                socket.emit('interests',interests);
+                    geocoder.geocode("kanstrasse, Berlin",function ( err, data ){
+                        var obj= JSON.parse(JSON.stringify(data));
+
+                        if(obj.status=="OVER_QUERY_LIMIT"){
+                            console.log(JSON.stringify("OVER_QUERY_LIMIT"));
+
+
+                        }
+                        else if(obj.results[0]!=null){
+                            var lat1=obj.results[0].geometry.location.lat;
+                            var lon1=obj.results[0].geometry.location.lng;
+
+                            cord[6]=[lat1,lon1];
+
+                            console.log(cord[6]);
+
+
+                        }
+
+
+                    });
+                });
+
                 while(p<cord.length){
 
                     socket.emit('cord', cord[p]);
@@ -199,7 +116,7 @@ function soc(){
                     p++;
                 }
                 socdone=true;
-                socket.emit('nUtenti',nUt);
+
             });
      }
     else{
@@ -256,4 +173,4 @@ function code(x){
 
 
 
-app.listen(8080);
+app.listen(8000);
