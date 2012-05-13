@@ -63,7 +63,7 @@
     border-bottom-right-radius: 10px;
 }
 .casella{
-    top:30px; margin-top:10px;opacity:1;padding-left:10px;border:none; background-color:transparent;display:none;position:relative;background-image:url('../img/casella-singola.png'); width:125px; margin-left:15px;height:33px;z-index:4;background-repeat:no-repeat;
+    top:30px; margin-top:10px;opacity:1;padding-left:10px;border:none; background-color:transparent;display:none;position:relative;background-image:url('../img/casella-singola.png'); width:123px; margin-left:15px;height:30px;z-index:4;background-repeat:no-repeat;
 }
 #sharry .ent{
 
