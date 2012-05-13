@@ -2,6 +2,7 @@
     height:100%;
     width:100%;
     overflow: hidden;
+    z-index: 0;
 }
 #map_canvas{
     position:absolute;
@@ -24,9 +25,18 @@
     background-color:#8c0000;
     width:250px;
     opacity:0.9;
-
+    z-index:1;
 }
+#listEv{
 
+    z-index:2;
+    opacity:1;
+
+    position:relative;
+    margin-top:320px;
+    height:200px;
+    padding-left: 10px;
+}
 #header{
     z-index:2;
     opacity:1;
@@ -53,16 +63,17 @@
     border-bottom-right-radius: 10px;
 }
 .casella{
-    margin-top:10px;opacity:1;padding-left:10px;border:none; background-color:transparent;display:none;position:relative;background-image:url('../img/casella-singola.png'); width:125px; margin-left:15px;height:33px;z-index:4;background-repeat:no-repeat;
+    top:30px; margin-top:10px;opacity:1;padding-left:10px;border:none; background-color:transparent;display:none;position:relative;background-image:url('../img/casella-singola.png'); width:125px; margin-left:15px;height:33px;z-index:4;background-repeat:no-repeat;
 }
 #sharry .ent{
-    top:50px;
+
 }
 #skills{
 
 }
-#skills .entt{
-    position:relative;background-image:url('../img/casella-skills.png');background-repeat:no-repeat; width:20px;height:20px;margin-top:5px;z-index:5;
+.entt{
+
+    background-color:transparent;margin-top:5px;margin-left:5px;float:left;position:relative;background-image:url('../img/casella-skills.png');background-repeat:no-repeat; width:17px;height:19px;z-index:6;
 }
 
 
@@ -70,7 +81,7 @@
     cursor:pointer;
 }
 #sharryBtn{
-    border:none;display:none;position:relative;background-repeat:no-repeat;background-image:url('../img/button-sharry.png'); width:135px; margin-top:30px;margin-left:15px;height:33px;z-index:3;
+    top:10px;border:none;display:none;position:relative;background-repeat:no-repeat;background-image:url('../img/button-sharry.png'); width:135px; margin-top:30px;margin-left:15px;height:33px;z-index:3;
 }
 
 #sharryBtn{

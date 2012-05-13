@@ -7,21 +7,50 @@ var fs = require('fs');
 var mongoose = require('mongoose')
     , Schema = mongoose.Schema
     , ObjectId = mongoose.SchemaTypes.ObjectId;
-var geo= new Schema({
+var event= new Schema({
      lat: Number
     ,lon: Number
-    ,cap: Number
-    ,count: Number
-    ,type: String
-})
-var interests;
+    ,title: String
+    ,skill:Number
+    ,when: String
+    ,where: String
+    ,comments: String
+    ,date: { type: Date, default: Date.now}
+    })
+
 mongoose.connect('mongodb://localhost/sharry');
-var geoModel = mongoose.model('geos', geo);
+var evModel = mongoose.model('event', event);
+
+
+setInterval(function(){
+    var now= new Date();
+    evModel.find({},function(err,docs){
 
 
 
+            for(var i=0;i<docs.length; i++){
 
+                var dp= docs[0].date;
+                dp.setHours(dp.getHours()+48);
 
+                if(dp.getTime()<now.getTime())
+                    for(j in events)
+                        if(events[j].lat==docs[i].lat && events[j].lon==docs[i].lon)
+                            events.splice(j,1);
+
+            }
+
+    });
+},180000);
+var events=[];
+function getEvents(){
+    evModel.find({},function(err,docs){
+         for(var i=0;i<docs.length; i++){
+              events[i]=docs[i];
+           }
+    });
+};
+getEvents();
 var dati=[];
 var j=0;
 
@@ -29,24 +58,10 @@ var j=0;
 
 
 
-var nUt=0;
 
 
-/*reader.addListener('data', function(data) {
-    var i=0;
-    while(data[i]!=null ){
-        if(i==1 && data[i]!=""){
-            dati[j]=data[i];
-            j++;
 
-        }
 
-        i++;
-
-    }
-});
-reader.addListener('end',gohead);
- */
 
 var app = express.createServer(
     express.bodyParser()
@@ -75,7 +90,7 @@ app.get('/', function (req, res) {
 var z=0;
 var ci=0;
 var cord=[];
-var socdone=false;
+
 code(1);
 
 
@@ -83,9 +98,65 @@ function soc(){
 
 
             io.sockets.on('connection', function (socket) {
+
+                for(var i=0;i<events.length; i++){
+                    var ev=[events[i].lat,events[i].lon,events[i].title,events[i].skill,events[i].when,events[i].where,events[i].comments];
+                    socket.emit('cord',ev);
+
+                }
+
                 var p=0;
-                socket.on('createEvent',function(where){
-                    console.log("ciao");
+                socket.on('removeEvent',function(info){
+                        var where=info;
+                    console.log(where);
+                        if(where.indexOf(",")!=-1)
+                            where=where+", karlskrona";
+                        geocoder.geocode(where,function ( err, data ){
+                            var obj= JSON.parse(JSON.stringify(data));
+
+                            if(obj.status=="OVER_QUERY_LIMIT"){
+                                console.log(JSON.stringify("OVER_QUERY_LIMIT"));
+
+
+                            }
+                            else if(obj.results[0]!=null){
+                                var lat1=obj.results[0].geometry.location.lat;
+                                var lon1=obj.results[0].geometry.location.lng;
+
+                                cord[p]=[lat1,lon1];
+
+                                for(var i=0; i<events.length;i++ )
+                                {
+
+                                    if(events[i].lat==lat1 && events[i].lon==lon1)
+                                        events.splice(i,1);
+                                }
+
+
+
+
+                            }
+
+                            evModel.findOne({'lat':lat1,'lon':lon1},function (err,doc1){
+                                console.log("c1111,"+lat1+","+lon1);
+                                if(doc1!=null){
+
+                                    doc1.remove();
+                                }
+
+                            });
+                            socket.emit('removedEvent', cord[p]);
+
+
+
+
+                        });
+
+                });
+                socket.on('createEvent',function(info){
+                    console.log(info);
+                    where=info[3];
+
                     if(where.indexOf(",")!=-1)
                         where=where+", karlskrona";
                     geocoder.geocode(where,function ( err, data ){
@@ -100,14 +171,29 @@ function soc(){
                             var lat1=obj.results[0].geometry.location.lat;
                             var lon1=obj.results[0].geometry.location.lng;
 
-                            cord[p]=[lat1,lon1];
+                            cord[p]=[lat1,lon1,info[0],info[1],info[2],info[3],info[4]];
+                            events[events.length]={lat:lat1,lon:lon1,title:info[0],skill:info[1],when:info[2],where:info[3],comments:info[4]};
 
-                            console.log(cord[p]);
+
 
 
                         }
 
-
+                        evModel.findOne({'lat':lat1,'lon':lon1},function (err,doc1){
+                           if(doc1==null){
+                                var doc= new evModel();
+                                doc.lat=lat1;
+                                doc.lon=lon1;
+                                doc.title= info[0];
+                                doc.where=info[3];
+                                doc.skill=info[1];
+                                doc.when=info[2];
+                                doc.comments=info[4];
+                                doc.save();
+                           }
+                           else
+                              console.log("event already exists");
+                        });
                         socket.emit('cord', cord[p]);
 
 
@@ -138,29 +224,7 @@ function code(x){
 
     var lat1="";
     var lon1="";
-
-    console.log(dati.length);
-
-
-
-
-
-
-
-
-
         soc();
-
-
-
-
-
-
-
-
-
-
-
 }
 
 

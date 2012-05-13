@@ -4,19 +4,64 @@ script
       var lon="";
       var indexcord=1;
       var neighborhoods=[];
+      var cord=[];
 
       var socket = io.connect();
-      socket.on('cord', function (cord) {
-          initialize(indexcord,cord);
+      socket.on('cord', function (cordg) {
+          cord=[cordg[0],cordg[1]];
+          console.log(cordg[6]);
+          initialize(indexcord,cord,cordg[2],cordg[3],cordg[4],cordg[5],cordg[6]);
+
           indexcord++;
 
 
       });
-      function cEvent(where){
-                                  console.log(where);
-                                  socket.emit('createEvent',where);
-      }
+      function cEvent(){
 
+                                  var title=$('input#title.casella.ent').val();
+
+                                  var where=$('#where').val();
+                                  var skills=getSkills();
+                                  var when= $('#when').val();
+                                  var comments="";
+                                  if($('#comments').val()!="")
+                                    comments=$('#comments').val();
+
+
+                                  var info=[title,skills,when,where,comments];
+                                  if(title=="Title" || when=="When" || where=="Where"){
+                                    if(title=="Title" )
+                                        $('input#title.casella.ent').css("background-color","red");
+                                    if(when=="When")
+                                        $('#when').css("background-color","red");
+                                    if(where=="Where")
+                                        $('#where').css("background-color","red");
+                                        }
+                                  else{
+                                    socket.emit('createEvent',info);
+                                    $('#listEv').append("<span style='color:white'>"+info[0]+", "+info[3]+"</span><button style='margin-left:10px' onclick='rm(\\""+  info[3] +"\\")'>Remove</button>");
+                                  }
+      }
+      function rm(info){
+
+
+        socket.emit('removeEvent',info);
+
+      }
+      socket.on('removedEvent',function(cord){
+        for(z in markers)
+            if(markers[z].getPosition().equals(new google.maps.LatLng(cord[0],cord[1]))){
+                markers[z].setMap(null);
+                markers[z].infowindow.close();
+            }
+
+      });
+      function getSkills(){
+          for(var i=1;i<=5;i++){
+                  if($('#'+i).css("background-image")!="url('/img/casella-skills-fill.png')");
+                       return i-1;
+           }
+      }
       var map;
       var contentString;
 
@@ -24,6 +69,7 @@ script
       var iterator = 0;
 
       function initializeMap(){
+
           var myOptions = {
               zoom: 14,
               center:  new google.maps.LatLng(56.171224 ,15.586900),
@@ -39,7 +85,7 @@ script
 
       }
 
-      function initialize (i,cord){
+      function initialize (i,cord,content,skill,when,where,comments){
 
           neighborhoods[i] = cord ;
           if(i==0){
@@ -48,11 +94,11 @@ script
               iterator = 0;
           }
           else{
-            drop(i);
+            drop(i,content,skill,when,where,comments);
           }
       }
 
-      function addMarker(i) {
+      function addMarker(i,content,skill,when,where,comments) {
           var icon;
 
 
@@ -67,40 +113,78 @@ script
                         animation: google.maps.Animation.DROP,
                         icon: icon
                     });
-          markers.push(marker);
+
+
             var myOptions = {
-                     content: "CIAO"
-                    ,disableAutoPan: false
+                     content: content
+                    ,disableAutoPan: true
                     ,maxWidth: 0
                     ,pixelOffset: new google.maps.Size(-30, -70)
                     ,zIndex: null
                     ,boxStyle: {
                       background: "url('img/casella-singola.png') no-repeat"
                       ,opacity: 0.9
-                      ,width: "133px"
-                      ,height: "60px"
+                      ,width: "120px"
+                      ,height: "17px"
                       ,padding:"7px 10px"
+                      ,overflow:"auto"
                      }
-                    ,closeBoxMargin: "-4px 12px 12px 12px"
+                    ,closeBoxMargin: "-4px -5px 12px 12px"
                     ,closeBoxURL: "http://www.google.com/intl/en_us/mapfiles/close.gif"
                     ,infoBoxClearance: new google.maps.Size(1, 1)
                     ,isHidden: false
                     ,pane: "floatPane"
                     ,enableEventPropagation: false
                 };
-          var infowindow = new InfoBox(myOptions);
-          setTimeout(function(){  infowindow.open(map, marker);},1000);
-          google.maps.event.addListener(marker, 'click', function() {
-            infowindow.open(map, marker);
 
+
+
+                //Change these values to style your modal popup
+                var align = 'center';									//Valid values; left, right, center
+                var top = 350; 											//Use an integer (in pixels)
+                var width = 300; 										//Use an integer (in pixels)
+                var padding = 10;										//Use an integer (in pixels)
+                var backgroundColor = '#FFFFFF'; 						//Use any hex code
+                var source = ''; 								//Refer to any page on your server, external pages are not valid e.g. http://www.google.co.uk
+                var borderColor = '#333333'; 							//Use any hex code
+                var borderWeight = 4; 									//Use an integer (in pixels)
+                var borderRadius = 5; 									//Use an integer (in pixels)
+                var fadeOutTime = 300; 									//Use any integer, 0 = no fade
+                var disableColor = '#666666'; 							//Use any hex code
+                var disableOpacity = 40; 								//Valid range 0-100
+                var loadingImage = 'img/loading.gif';		//Use relative path from this page
+
+                //This method initialises the modal popup
+
+                //This method hides the popup when the escape key is pressed
+                $(document).keyup(function(e) {
+                    if (e.keyCode == 27) {
+                        closePopup(fadeOutTime);
+                    }
+                });
+
+
+
+           marker.infowindow = new InfoBox(myOptions);
+           markers.push(marker);
+           setTimeout(function(){marker.infowindow.open(map, marker);},800);
+
+
+          google.maps.event.addListener(marker, 'click', function() {
+
+
+                modalPopup(align, top, width, padding, disableColor, disableOpacity, backgroundColor, borderColor, borderWeight, borderRadius, fadeOutTime, source, loadingImage);
+
+                $('div#innerModalPopupDiv.innerModalPopupDiv').append('<div style="text-align:center"><p>Title: '+content+'</p><p>Skills: '+skill+'</p><p>When: '+when+'</p><p>Where: '+where+'</p><p>Comments: '+comments+'</p></div>');
           });
+
       }
 
-      function drop(i) {
+      function drop(i,content,skill,when,where,comments) {
 
               setTimeout(function() {
 
-                  addMarker(i);
+                  addMarker(i,content,skill,when,where,comments);
               }, i * 20+500);
 
 
@@ -111,57 +195,9 @@ script
 
           $('#leftside').css('height',$(window).height());
           $(window).scroll(function(){
-                console.log("CIAO!");
+
                  $(document).scrollTop(0);
           });
-          $('#wrap').bind("mouseenter",function() {
-
-                                  done=false;
-                                $('#container').stop().animate({
-
-                                  opacity: '1',
-
-                                }, 1000, function() {
-                                  // Animation complete.
-                                });
-
-                              }).bind("mouseleave",function(){
-
-                                       $('#container').stop().animate({
-
-
-
-                                           opacity: '1',
-
-                                         }, 1000, function() {
-
-                                         });
-
-                              });
-           $('#nUtenti').bind("mouseenter",function() {
-
-                                               done=false;
-                                             $('#nUtenti').stop().animate({
-
-                                               opacity: '1',
-
-                                             }, 1000, function() {
-                                               // Animation complete.
-                                             });
-
-                                           }).bind("mouseleave",function(){
-
-                                                    $('#nUtenti').stop().animate({
-
-
-
-                                                        opacity: '1',
-
-                                                      }, 1000, function() {
-
-                                                      });
-
-                                           });
 
 
 
@@ -209,7 +245,7 @@ script
 
 
 
-body(onload="initialize(0,[56.171224 ,15.586900]),entra()")
+body(onload="initialize(0,[56.171224 ,15.586900],''),entra()")
 
 
       #map_canvas
@@ -222,20 +258,23 @@ body(onload="initialize(0,[56.171224 ,15.586900]),entra()")
                   img#search(src="img/spotlight.png",onclick="entra2()")
 
               #sharry(class="ent")
-                  input.casella#title(tabindex=1,class="ent",type="textbox", value="Title", onfocus="$(this).val('')", onblur="if($(this).val()==''    )$(this).val('Title');")
+                  input.casella#title(tabindex=1,class="ent",type="textbox", value="Title", onfocus="if($(this).val()=='Title') $(this).val('')", onblur="if($(this).val()==''    )$(this).val('Title');")
 
 
 
                   #skills.casella(class="ent")
-                      img#1(class="entt",onclick=("skillcheck(this)"))
-                      img#2(class="entt",onclick=("skillcheck(this)"))
-                      img#3(class="entt",onclick=("skillcheck(this)"))
-                      img#4(class="entt",onclick=("skillcheck(this)"))
-                      img#5(class="entt",onclick=("skillcheck(this)"))
+                      img#1.ent(class="entt",onclick=("skillcheck(this)"))
+                      img#2.ent(class="entt",onclick=("skillcheck(this)"))
+                      img#3.ent(class="entt",onclick=("skillcheck(this)"))
+                      img#4.ent(class="entt",onclick=("skillcheck(this)"))
+                      img#5.ent(class="entt",onclick=("skillcheck(this)"))
 
-                  input.casella#when(tabindex=2,class="ent",type="textbox", value="When", onfocus="$(this).val('')", onblur="if($(this).val()==''    )$(this).val('When');")
-                  input.casella#where(tabindex=3,class="ent",type="textbox", value="Where", onfocus="$(this).val('')", onblur="if($(this).val()==''    )$(this).val('Where');", onkeypress="if(event.charCode==13)cEvent($('#where').val())")
-                  img#sharryBtn(tabindex=4,class="ent", onclick="cEvent($('#where').val())")
+                  input.casella#when(tabindex=2,class="ent",type="textbox", value="When", onfocus="if($(this).val()=='When')$(this).val('')", onblur="if($(this).val()==''    )$(this).val('When');")
+                  input.casella#where(tabindex=3,class="ent",type="textbox", value="Where", onfocus="if($(this).val()=='Where')$(this).val('')", onblur="if($(this).val()==''    )$(this).val('Where');", onkeypress="if(event.charCode==13)cEvent($('#where').val())")
+                  input.casella#comments(tabindex=4,class="ent",type="textbox", value="Comments", onfocus="if($(this).val()=='Comments')$(this).val('')", onblur="if($(this).val()==''    )$(this).val('Comments');", onkeypress="if(event.charCode==13)cEvent($('#where').val())")
+                  img#sharryBtn(tabindex=5,class="ent", onclick="cEvent()")
+              #listEv(class="ent")
+
 
 
 
@@ -244,6 +283,13 @@ body(onload="initialize(0,[56.171224 ,15.586900]),entra()")
           #rightside
               img(src="img/button-now.png")
               img(src="img/tool-box.png", style="border:none;float:right; margin-top:20px")
+              script(type="text/javascript")
+                var uvOptions = {};
+                (function() {
+                  var uv = document.createElement('script'); uv.type = 'text/javascript'; uv.async = true;
+                  uv.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'widget.uservoice.com/HueusZ3ZR1efbtw3P9eGMQ.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(uv, s);
+                })();
 
 
       #footer
