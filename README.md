@@ -47,5 +47,6 @@ Like many of our potential users, we are new to town and looking to connect with
 We help every potential business looking to participate as an advertiser or to attract our users through local events by first meeting with them to assess their needs and create reasonable targets and expectations for our mutual success. (Through such, we avoid the Groupon hangover of having too many people come through one’s doors or deals which just don’t catch on.)
 After events, we work with our clients to reassess their needs and their success, and encourage them to adjust their user-targets accordingly. We offer discounts for relisting events to encourage our clients to use us again. We encourage our users to leave feedback for the event to measure and ensure that everyone in the Sharry community has benefit from the experience.
 
-Video demo available at:
+Video demo available at:https://vimeo.com/61191076
+
 Demo available at: http://www.getsharry.com/ (last update 10/12/12)
